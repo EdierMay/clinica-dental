@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TratamientoController; // 👈 IMPORTANTE
+use App\Http\Controllers\TratamientoController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,12 +40,14 @@ Route::get('/solo-admin', function () {
 })->middleware(['auth', 'role:admin']);
 
 
-// ===========================
-//  CRUD de Tratamientos
-//  Acceso: admin y staff
-// ===========================
+// CRUD de Tratamientos (admin + staff)
 Route::middleware(['auth', 'role:admin,staff'])->group(function () {
     Route::resource('tratamientos', TratamientoController::class);
+});
+
+// CRUD de Usuarios (solo admin)
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('users', UserController::class);
 });
 
 

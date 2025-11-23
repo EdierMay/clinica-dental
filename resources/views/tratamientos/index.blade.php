@@ -8,24 +8,37 @@
     <div class="py-6">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
 
-            @if (session('status'))
-                <div class="mb-4 text-green-600">
-                    {{ session('status') }}
+            {{-- ALERTAS SIMPLE (FALLBACK) --}}
+            @if (session('success') || session('status'))
+                <div class="mb-4 flex items-center gap-2 p-3 rounded-lg bg-green-100 text-green-800 font-semibold shadow">
+                    <span>✅</span>
+                    <span>{{ session('success') ?? session('status') }}</span>
                 </div>
             @endif
 
-            {{-- Botón para crear nuevo tratamiento --}}
+            @if (session('error'))
+                <div class="mb-4 flex items-center gap-2 p-3 rounded-lg bg-red-100 text-red-800 font-semibold shadow">
+                    <span>⚠️</span>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
+            {{-- BOTÓN: NUEVO TRATAMIENTO (MUY VISIBLE) --}}
             <div class="mb-4 flex justify-end">
                 <a href="{{ route('tratamientos.create') }}"
-                   class="inline-flex items-center px-4 py-2 
-                          bg-yellow-300 hover:bg-yellow-400 
-                          text-black font-semibold rounded-lg shadow-md 
-                          border border-yellow-500 uppercase tracking-wide
-                          focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition">
-                    ➕ Nuevo tratamiento
+                   class="inline-flex items-center gap-2 px-6 py-3
+                          bg-yellow-400 hover:bg-yellow-500
+                          text-black text-sm font-extrabold rounded-xl shadow-lg
+                          border-2 border-black
+                          uppercase tracking-wide
+                          focus:outline-none focus:ring-2 focus:ring-yellow-500
+                          focus:ring-offset-2 transition">
+                    🆕
+                    <span>Nuevo tratamiento</span>
                 </a>
             </div>
 
+            {{-- TABLA DE TRATAMIENTOS --}}
             <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-100">
@@ -39,35 +52,57 @@
                     </thead>
                     <tbody>
                         @forelse ($tratamientos as $tratamiento)
-                            <tr class="border-b">
-                                <td class="px-4 py-2">{{ $tratamiento->id }}</td>
-                                <td class="px-4 py-2">{{ $tratamiento->nombre }}</td>
-                                <td class="px-4 py-2">${{ number_format($tratamiento->precio, 2) }}</td>
-                                <td class="px-4 py-2">{{ $tratamiento->created_at?->format('d/m/Y') }}</td>
-                                <td class="px-4 py-2 text-right space-x-2">
-                                    <a href="{{ route('tratamientos.edit', $tratamiento) }}"
-                                       class="inline-flex items-center px-3 py-1 text-xs font-semibold
-                                              bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-md transition">
-                                        Editar
-                                    </a>
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2 text-gray-700">
+                                    {{ $tratamiento->id }}
+                                </td>
 
-                                    <form action="{{ route('tratamientos.destroy', $tratamiento) }}"
-                                          method="POST"
-                                          class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="inline-flex items-center px-3 py-1 text-xs font-semibold
-                                                       bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition"
-                                                onclick="return confirm('¿Eliminar tratamiento?')">
-                                            Eliminar
-                                        </button>
-                                    </form>
+                                <td class="px-4 py-2 font-semibold text-gray-900">
+                                    {{ $tratamiento->nombre }}
+                                </td>
+
+                                <td class="px-4 py-2 text-gray-800 font-medium">
+                                    ${{ number_format($tratamiento->precio, 2) }}
+                                </td>
+
+                                <td class="px-4 py-2 text-gray-600">
+                                    {{ $tratamiento->created_at?->format('d/m/Y') }}
+                                </td>
+
+                                <td class="px-4 py-2">
+                                    <div class="flex justify-end gap-2">
+                                        {{-- BOTÓN EDITAR --}}
+                                        <a href="{{ route('tratamientos.edit', $tratamiento) }}"
+                                           class="inline-flex items-center gap-1 px-4 py-2
+                                                  bg-yellow-400 hover:bg-yellow-500
+                                                  text-black text-xs font-semibold rounded-lg shadow
+                                                  focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                                            ✏️
+                                            <span>Editar</span>
+                                        </a>
+
+                                        {{-- BOTÓN ELIMINAR (usa SweetAlert2 por la clase delete-form) --}}
+                                        <form action="{{ route('tratamientos.destroy', $tratamiento) }}"
+                                              method="POST"
+                                              class="delete-form"
+                                              data-message="¿Eliminar el tratamiento «{{ $tratamiento->nombre }}»?">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="inline-flex items-center gap-1 px-4 py-2
+                                                           bg-red-600 hover:bg-red-700
+                                                           text-white text-xs font-semibold rounded-lg shadow
+                                                           focus:outline-none focus:ring-2 focus:ring-red-400">
+                                                🗑️
+                                                <span>Eliminar</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-2 text-center">
+                                <td colspan="5" class="px-4 py-4 text-center text-gray-600">
                                     No hay tratamientos registrados.
                                 </td>
                             </tr>
@@ -75,6 +110,7 @@
                     </tbody>
                 </table>
 
+                {{-- PAGINACIÓN --}}
                 <div class="p-4">
                     {{ $tratamientos->links() }}
                 </div>

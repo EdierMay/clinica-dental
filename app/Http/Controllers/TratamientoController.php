@@ -18,7 +18,7 @@ class TratamientoController extends Controller
     }
 
     /**
-     * Mostrar formulario de creación.
+     * Formulario para crear un nuevo tratamiento.
      */
     public function create()
     {
@@ -26,25 +26,24 @@ class TratamientoController extends Controller
     }
 
     /**
-     * Guardar nuevo tratamiento.
+     * Guardar un nuevo tratamiento.
      */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'precio' => 'required|numeric|min:0',
+            'nombre' => ['required', 'string', 'max:255'],
+            'precio' => ['required', 'numeric', 'min:0'],
         ]);
 
         Tratamiento::create($data);
 
         return redirect()
             ->route('tratamientos.index')
-            ->with('status', 'Tratamiento creado correctamente.');
+            ->with('success', '🦷 Tratamiento creado correctamente.');
     }
 
     /**
-     * Mostrar formulario de edición.
+     * Formulario de edición.
      */
     public function edit(Tratamiento $tratamiento)
     {
@@ -52,33 +51,46 @@ class TratamientoController extends Controller
     }
 
     /**
-     * Actualizar tratamiento.
+     * Actualizar un tratamiento.
      */
     public function update(Request $request, Tratamiento $tratamiento)
     {
         $data = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'precio' => 'required|numeric|min:0',
+            'nombre' => ['required', 'string', 'max:255'],
+            'precio' => ['required', 'numeric', 'min:0'],
         ]);
+
+        // Si no cambia nada
+        if ($tratamiento->nombre === $data['nombre'] &&
+            $tratamiento->precio == $data['precio']) 
+        {
+            return redirect()
+                ->route('tratamientos.index')
+                ->with('error', '⚠️ No se realizaron cambios en el tratamiento.');
+        }
 
         $tratamiento->update($data);
 
         return redirect()
             ->route('tratamientos.index')
-            ->with('status', 'Tratamiento actualizado correctamente.');
+            ->with('success', '📝 Tratamiento actualizado correctamente.');
     }
 
     /**
-     * Eliminar (borrar) tratamiento.
-     * Si prefieres "desactivar" en lugar de borrar, se puede cambiar.
+     * Eliminar tratamiento.
      */
     public function destroy(Tratamiento $tratamiento)
     {
-        $tratamiento->delete();
+        try {
+            $tratamiento->delete();
 
-        return redirect()
-            ->route('tratamientos.index')
-            ->with('status', 'Tratamiento eliminado.');
+            return redirect()
+                ->route('tratamientos.index')
+                ->with('success', '🗑️ Tratamiento eliminado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('tratamientos.index')
+                ->with('error', '❌ No se pudo eliminar el tratamiento.');
+        }
     }
 }
