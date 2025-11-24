@@ -14,8 +14,8 @@
             {{-- SECCIÓN BIENVENIDA --}}
             <div class="bg-white shadow-sm sm:rounded-xl p-6 border border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900">BIENVENIDO</h3>
-                <p class="text-xl mt-1 font-extrabold text-green-700">You're logged in!</p>
-                <p class="text-gray-600 mt-1">Desde aquí puedes administrar tu clínica dental.</p>
+                <p class="text-xl mt-1 font-extrabold text-green-700"> A tu clínica!</p>
+                <p class="text-gray-600 mt-1">De Confianza.</p>
             </div>
 
             {{-- ============================= --}}

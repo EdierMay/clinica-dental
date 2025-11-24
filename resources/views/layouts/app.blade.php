@@ -29,6 +29,9 @@
         <main>
             {{ $slot }}
         </main>
+
+        {{-- FOOTER GLOBAL DE LA CLÍNICA --}}
+        <x-footer />
     </div>
 
     @stack('modals')
