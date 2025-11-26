@@ -50,7 +50,12 @@ Route::middleware(['auth', 'role:admin,staff'])->group(function () {
 // CRUD de Usuarios (solo admin)
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('users', UserController::class);
+
+    // 👉 Ruta para activar / desactivar (toggle) usuarios
+    Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
+        ->name('users.toggleStatus');
 });
+
 
 // Rutas de autenticación (login/register) generadas por Breeze
 require __DIR__.'/auth.php';

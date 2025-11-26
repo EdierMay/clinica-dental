@@ -14,7 +14,6 @@ class UserController extends Controller
     public function index()
     {
         // Ordenar por ID y usar paginación (10 por página)
-        // Así te aseguras que los nuevos usuarios aparezcan correctamente
         $users = User::orderBy('id', 'asc')->paginate(10);
 
         return view('users.index', compact('users'));
@@ -90,6 +89,7 @@ class UserController extends Controller
 
     /**
      * Desactivar usuario (no borrarlo).
+     * Este método lo seguimos usando si quieres "desactivar definitivo".
      */
     public function destroy(User $user)
     {
@@ -122,6 +122,47 @@ class UserController extends Controller
             ->with([
                 'success' => '🚫 Usuario desactivado correctamente.',
                 'status'  => 'Usuario desactivado correctamente.',
+            ]);
+    }
+
+    /**
+     * 👉 Activar / Desactivar (toggle) usuario desde la lista.
+     */
+    public function toggleStatus(User $user)
+    {
+        // No permitir cambiar tu propio estado
+        if ($user->id === auth()->id()) {
+            return redirect()
+                ->route('users.index')
+                ->with([
+                    'error'  => 'No puedes cambiar el estado de tu propio usuario.',
+                    'status' => 'No puedes cambiar el estado de tu propio usuario.',
+                ]);
+        }
+
+        // No permitir cambiar estado de administradores (si quieres protegerlos)
+        if ($user->role === 'admin') {
+            return redirect()
+                ->route('users.index')
+                ->with([
+                    'error'  => 'No se puede cambiar el estado de un administrador.',
+                    'status' => 'No se puede cambiar el estado de un administrador.',
+                ]);
+        }
+
+        // Cambiar estado: si está activo -> inactivo, si está inactivo -> activo
+        $user->active = ! $user->active;
+        $user->save();
+
+        $mensaje = $user->active
+            ? '✅ Usuario activado correctamente.'
+            : '🚫 Usuario desactivado correctamente.';
+
+        return redirect()
+            ->route('users.index')
+            ->with([
+                'success' => $mensaje,
+                'status'  => $mensaje,
             ]);
     }
 }
